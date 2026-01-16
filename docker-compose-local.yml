@@ -1,4 +1,7 @@
+version: "3.9"
+
 services:
+  # --- Infrastructure ---
   plane-redis:
     image: valkey/valkey:7.2.11-alpine
     restart: unless-stopped
@@ -31,7 +34,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       mkdir -p /export/${AWS_S3_BUCKET_NAME} &&
-      minio server /export --console-address ':9090' &
+      minio server /export --console-address ':9090' & 
       sleep 5 &&
       mc alias set myminio http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} &&
       mc mb myminio/${AWS_S3_BUCKET_NAME} -p || true
@@ -48,78 +51,7 @@ services:
       - "9000:9000"
       - "9090:9090"
 
-  # plane-db:
-  #   image: postgres:15.7-alpine
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   command: postgres -c 'max_connections=1000'
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     PGDATA: /var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: ./web/Dockerfile.dev
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./web:/app/web
-  #   env_file:
-  #     - ./web/.env
-  #   depends_on:
-  #     - api
-  #     - worker
-
-  # space:
-  #   build:
-  #     context: .
-  #     dockerfile: ./space/Dockerfile.dev
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./space:/app/space
-  #   depends_on:
-  #     - api
-  #     - worker
-  #     - web
-
-  # admin:
-  #   build:
-  #     context: .
-  #     dockerfile: ./admin/Dockerfile.dev
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./admin:/app/admin
-  #   depends_on:
-  #     - api
-  #     - worker
-  #     - web
-
-  # live:
-  #   build:
-  #     context: .
-  #     dockerfile: ./live/Dockerfile.dev
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./live:/app/live
-  #   depends_on:
-  #     - api
-  #     - worker
-  #     - web
-
+  # --- Backend ---
   api:
     build:
       context: ./apps/api
@@ -193,26 +125,77 @@ services:
     depends_on:
       - plane-redis
 
-  # proxy:
-  #   build:
-  #     context: ./apps/proxy
-  #     dockerfile: Dockerfile.ce
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   ports:
-  #     - ${LISTEN_HTTP_PORT}:80
-  #     - ${LISTEN_HTTPS_PORT}:443
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
-  #     BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
-  #   depends_on:
-  #     - api
-  #     - web
-  #     - space
-  #     - admin
+  # --- Frontend ---
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/web:/app/web
+    env_file:
+      - ./apps/web/.env
+    depends_on:
+      - api
+      - worker
+    ports:
+      - "3000:3000"
+
+  admin:
+    build:
+      context: ./apps/admin
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/admin:/app/admin
+    env_file:
+      - ./apps/admin/.env
+    depends_on:
+      - api
+      - worker
+      - web
+    ports:
+      - "3001:3001"
+
+  space:
+    build:
+      context: ./apps/space
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/space:/app/space
+    env_file:
+      - ./apps/space/.env
+    depends_on:
+      - api
+      - worker
+      - web
+    ports:
+      - "3002:3002"
+
+  live:
+    build:
+      context: ./apps/live
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/live:/app/live
+    env_file:
+      - ./apps/live/.env
+    depends_on:
+      - api
+      - worker
+      - web
+    ports:
+      - "3003:3003"
 
 volumes:
   redisdata:

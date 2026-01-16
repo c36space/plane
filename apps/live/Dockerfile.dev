@@ -4,7 +4,12 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY . .
-RUN corepack enable pnpm && pnpm add -g turbo
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+
+RUN corepack enable \
+  && mkdir -p /pnpm \
+  && pnpm add -g turbo
 RUN pnpm install
 EXPOSE 3003
 

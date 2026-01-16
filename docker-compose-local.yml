@@ -1,12 +1,11 @@
 version: "3.9"
 
 services:
-  # --- Infrastructure ---
+  # ---------------- Infrastructure ----------------
   plane-redis:
     image: valkey/valkey:7.2.11-alpine
     restart: unless-stopped
-    networks:
-      - dev_env
+    networks: [dev_env]
     volumes:
       - redisdata:/data
     ports:
@@ -15,8 +14,7 @@ services:
   plane-mq:
     image: rabbitmq:3.13.6-management-alpine
     restart: unless-stopped
-    networks:
-      - dev_env
+    networks: [dev_env]
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     env_file:
@@ -29,16 +27,15 @@ services:
   plane-minio:
     image: minio/minio
     restart: unless-stopped
-    networks:
-      - dev_env
+    networks: [dev_env]
     entrypoint: >
       /bin/sh -c "
       mkdir -p /export/${AWS_S3_BUCKET_NAME} &&
-      minio server /export --console-address ':9090' & 
+      minio server /export --console-address ':9090' &
       sleep 5 &&
       mc alias set myminio http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} &&
-      mc mb myminio/${AWS_S3_BUCKET_NAME} -p || true
-      && tail -f /dev/null
+      mc mb myminio/${AWS_S3_BUCKET_NAME} -p || true &&
+      tail -f /dev/null
       "
     volumes:
       - uploads:/export
@@ -51,16 +48,13 @@ services:
       - "9000:9000"
       - "9090:9090"
 
-  # --- Backend ---
+  # ---------------- Backend ----------------
   api:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: unless-stopped
-    networks:
-      - dev_env
+    networks: [dev_env]
     volumes:
       - ./apps/api:/code
     command: ./bin/docker-entrypoint-api-local.sh
@@ -76,11 +70,8 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: unless-stopped
-    networks:
-      - dev_env
+    networks: [dev_env]
     volumes:
       - ./apps/api:/code
     command: ./bin/docker-entrypoint-worker.sh
@@ -94,11 +85,8 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: unless-stopped
-    networks:
-      - dev_env
+    networks: [dev_env]
     volumes:
       - ./apps/api:/code
     command: ./bin/docker-entrypoint-beat.sh
@@ -112,11 +100,8 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: "no"
-    networks:
-      - dev_env
+    networks: [dev_env]
     volumes:
       - ./apps/api:/code
     command: ./bin/docker-entrypoint-migrator.sh --settings=plane.settings.local
@@ -125,74 +110,58 @@ services:
     depends_on:
       - plane-redis
 
-  # --- Frontend ---
+  # ---------------- Frontend (FIXED) ----------------
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: ./apps/web/Dockerfile.dev
     restart: unless-stopped
-    networks:
-      - dev_env
-    volumes:
-      - ./apps/web:/app/web
+    networks: [dev_env]
     env_file:
       - ./apps/web/.env
     depends_on:
       - api
-      - worker
     ports:
       - "3000:3000"
 
   admin:
     build:
-      context: ./apps/admin
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: ./apps/admin/Dockerfile.dev
     restart: unless-stopped
-    networks:
-      - dev_env
-    volumes:
-      - ./apps/admin:/app/admin
+    networks: [dev_env]
     env_file:
       - ./apps/admin/.env
     depends_on:
       - api
-      - worker
       - web
     ports:
       - "3001:3001"
 
   space:
     build:
-      context: ./apps/space
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: ./apps/space/Dockerfile.dev
     restart: unless-stopped
-    networks:
-      - dev_env
-    volumes:
-      - ./apps/space:/app/space
+    networks: [dev_env]
     env_file:
       - ./apps/space/.env
     depends_on:
       - api
-      - worker
       - web
     ports:
       - "3002:3002"
 
   live:
     build:
-      context: ./apps/live
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: ./apps/live/Dockerfile.dev
     restart: unless-stopped
-    networks:
-      - dev_env
-    volumes:
-      - ./apps/live:/app/live
+    networks: [dev_env]
     env_file:
       - ./apps/live/.env
     depends_on:
       - api
-      - worker
       - web
     ports:
       - "3003:3003"

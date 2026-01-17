@@ -66,14 +66,14 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./web/Dockerfile.dev
+      dockerfile: ./apps/web/Dockerfile.dev
     restart: unless-stopped
     networks:
       - dev_env
     volumes:
-      - ./web:/app/web
+      - ./apps/web:/app/web
     env_file:
-      - ./web/.env
+      - ./apps/web/.env
     depends_on:
       - api
       - worker
@@ -81,12 +81,12 @@ services:
   space:
     build:
       context: .
-      dockerfile: ./space/Dockerfile.dev
+      dockerfile: ./apps/space/Dockerfile.dev
     restart: unless-stopped
     networks:
       - dev_env
     volumes:
-      - ./space:/app/space
+      - ./apps/space:/app/space
     depends_on:
       - api
       - worker
@@ -95,12 +95,12 @@ services:
   admin:
     build:
       context: .
-      dockerfile: ./admin/Dockerfile.dev
+      dockerfile: ./apps/admin/Dockerfile.dev
     restart: unless-stopped
     networks:
       - dev_env
     volumes:
-      - ./admin:/app/admin
+      - ./apps/admin:/app/admin
     depends_on:
       - api
       - worker
@@ -109,12 +109,12 @@ services:
   live:
     build:
       context: .
-      dockerfile: ./live/Dockerfile.dev
+      dockerfile: ./apps/live/Dockerfile.dev
     restart: unless-stopped
     networks:
       - dev_env
     volumes:
-      - ./live:/app/live
+      - ./apps/live:/app/live
     depends_on:
       - api
       - worker
@@ -124,8 +124,6 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: unless-stopped
     networks:
       - dev_env
@@ -145,8 +143,6 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: unless-stopped
     networks:
       - dev_env
@@ -164,8 +160,6 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: unless-stopped
     networks:
       - dev_env
@@ -183,8 +177,6 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-      args:
-        DOCKER_BUILDKIT: 1
     restart: "no"
     networks:
       - dev_env

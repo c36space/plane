@@ -5,12 +5,7 @@ WORKDIR /app
 
 COPY . .
 
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
-
-RUN corepack enable \
-  && mkdir -p /pnpm \
-  && pnpm add -g turbo
+RUN corepack enable pnpm && pnpm add -g turbo
 RUN pnpm install
 
 ENV VITE_ADMIN_BASE_PATH="/god-mode"

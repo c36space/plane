@@ -25,6 +25,6 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the application
 COPY apps/admin ./apps/admin
 
-EXPOSE 3001  # Admin typically runs on 3001
+EXPOSE 3000  # Admin typically runs on 3001
 
 CMD ["pnpm", "dev", "--filter=admin"]

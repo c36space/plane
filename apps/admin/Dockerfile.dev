@@ -27,4 +27,4 @@ COPY apps/admin ./apps/admin
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev", "--filter=admin"]
+CMD ["pnpm", "dev", "--filter=admin", "--", "--host", "0.0.0.0"]

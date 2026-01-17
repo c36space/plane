@@ -27,4 +27,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev", "--filter=web"]
+CMD ["pnpm", "dev", "--filter=web", "--", "--host", "0.0.0.0"]

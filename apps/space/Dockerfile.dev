@@ -29,4 +29,4 @@ ENV VITE_SPACE_BASE_PATH="/spaces"
 
 EXPOSE 3002
 
-CMD ["pnpm", "dev", "--filter=space"]
+CMD ["pnpm", "dev", "--filter=space", "--", "--host", "0.0.0.0"]

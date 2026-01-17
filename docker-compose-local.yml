@@ -79,8 +79,7 @@ services:
     depends_on:
       - api
       - worker
-    command: pnpm dev --filter=web --host 0.0.0.0
-
+    
   space:
     build:
       context: .
@@ -96,7 +95,6 @@ services:
       - api
       - worker
       - web
-    command: pnpm dev --filter=space --host 0.0.0.0
 
   admin:
     build:
@@ -113,7 +111,6 @@ services:
       - api
       - worker
       - web
-    command: pnpm dev --filter=admin --host 0.0.0.0
 
   live:
     build:
@@ -130,7 +127,6 @@ services:
       - api
       - worker
       - web
-    command: pnpm dev --filter=live --host 0.0.0.0
 
   api:
     build:
@@ -143,7 +139,7 @@ services:
       - dev_env
     volumes:
       - ./apps/api:/code
-    command: ./bin/docker-entrypoint-api-local.sh --bind 0.0.0.0:8000
+    command: ./bin/docker-entrypoint-api-local.sh
     env_file:
       - ./apps/api/.env
     depends_on:

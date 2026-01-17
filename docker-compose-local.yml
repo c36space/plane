@@ -146,8 +146,7 @@ services:
       - plane-db
       - plane-redis
       - plane-mq
-    ports:
-      - "8000:8000"
+ 
 
   worker:
     build:

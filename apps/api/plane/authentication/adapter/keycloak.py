@@ -88,10 +88,14 @@ class KeycloakOAuthProvider(OauthAdapter):
         scope = "openid profile email"
 
         # Build redirect URI based on request context
+        # Use X-Forwarded-Proto header for secure detection behind reverse proxy
+        is_secure = self._get_request_is_secure(request)
+        protocol = 'https' if is_secure else 'http'
+        
         if hasattr(request, 'is_space') and request.is_space:
-            redirect_uri = f"{'https' if request.is_secure() else 'http'}://{request.get_host()}/auth/keycloak/callback/space/"
+            redirect_uri = f"{protocol}://{request.get_host()}/auth/keycloak/callback/space/"
         else:
-            redirect_uri = f"{'https' if request.is_secure() else 'http'}://{request.get_host()}/auth/keycloak/callback/"
+            redirect_uri = f"{protocol}://{request.get_host()}/auth/keycloak/callback/"
 
         # Build auth URL with parameters
         url_params = {
@@ -118,6 +122,38 @@ class KeycloakOAuthProvider(OauthAdapter):
             code=code,
             callback=callback,
         )
+
+    @staticmethod
+    def _get_request_is_secure(request):
+        """
+        Detect if the request is secure (HTTPS), considering reverse proxies.
+        
+        In production, Django is typically behind a reverse proxy (Nginx, Caddy, etc.)
+        that terminates SSL. The proxy forwards the request via HTTP internally.
+        
+        This method checks:
+        1. X-Forwarded-Proto header (set by reverse proxies)
+        2. X-Forwarded-SSL header (alternative header)
+        3. Cloudfront-Forwarded-Proto header (AWS CloudFront)
+        4. request.is_secure() as fallback
+        """
+        # Check X-Forwarded-Proto header (most common for reverse proxies)
+        forwarded_proto = request.headers.get('X-Forwarded-Proto', '').lower()
+        if forwarded_proto in ('https', 'http'):
+            return forwarded_proto == 'https'
+        
+        # Check X-Forwarded-SSL header (alternative)
+        forwarded_ssl = request.headers.get('X-Forwarded-SSL', '').lower()
+        if forwarded_ssl == 'on':
+            return True
+        
+        # Check Cloudfront-Forwarded-Proto header (AWS CloudFront)
+        cloudfront_proto = request.headers.get('CloudFront-Forwarded-Proto', '').lower()
+        if cloudfront_proto in ('https', 'http'):
+            return cloudfront_proto == 'https'
+        
+        # Fallback to Django's is_secure() method
+        return request.is_secure()
 
     def set_token_data(self):
         """Exchange authorization code for tokens"""

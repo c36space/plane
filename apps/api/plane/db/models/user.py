@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255, blank=True)
     # avatar
-    avatar = models.TextField(blank=True)
+    avatar = models.TextField(blank=True, default="")
     avatar_asset = models.ForeignKey(
         FileAsset,
         on_delete=models.SET_NULL,

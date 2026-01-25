@@ -1,4 +1,7 @@
-import type { TExtendedInstanceAuthenticationModeKeys } from "./auth-ee";
+import type { IFormattedInstanceConfiguration } from "./base"; // Import from main instance file
+
+// @plane/types/src/instance.ts
+export type TExtendedInstanceAuthenticationModeKeys = string & {};
 
 export type TCoreInstanceAuthenticationModeKeys =
   | "unique-codes"
@@ -6,7 +9,8 @@ export type TCoreInstanceAuthenticationModeKeys =
   | "google"
   | "github"
   | "gitlab"
-  | "gitea";
+  | "gitea"
+  | "keycloak";
 
 export type TInstanceAuthenticationModeKeys =
   | TCoreInstanceAuthenticationModeKeys
@@ -19,6 +23,7 @@ export type TInstanceAuthenticationModes = {
   icon: React.ReactNode;
   config: React.ReactNode;
   unavailable?: boolean;
+  required_configuration?: boolean;
 };
 
 export type TInstanceAuthenticationMethodKeys =
@@ -26,6 +31,7 @@ export type TInstanceAuthenticationMethodKeys =
   | "ENABLE_MAGIC_LINK_LOGIN"
   | "ENABLE_EMAIL_PASSWORD"
   | "IS_GOOGLE_ENABLED"
+  | "IS_KEYCLOAK_ENABLED"
   | "IS_GITHUB_ENABLED"
   | "IS_GITLAB_ENABLED"
   | "IS_GITEA_ENABLED";
@@ -53,11 +59,20 @@ export type TInstanceGiteaAuthenticationConfigurationKeys =
   | "GITEA_CLIENT_SECRET"
   | "ENABLE_GITEA_SYNC";
 
+export type TInstanceKeycloakAuthenticationConfigurationKeys =
+  | "KEYCLOAK_CLIENT_ID"
+  | "KEYCLOAK_CLIENT_SECRET"
+  | "KEYCLOAK_BASE_URL"
+  | "KEYCLOAK_REALM"
+  | "KEYCLOAK_ISSUER"
+  | "ENABLE_KEYCLOAK_SYNC";
+
 export type TInstanceAuthenticationConfigurationKeys =
   | TInstanceGoogleAuthenticationConfigurationKeys
   | TInstanceGithubAuthenticationConfigurationKeys
   | TInstanceGitlabAuthenticationConfigurationKeys
-  | TInstanceGiteaAuthenticationConfigurationKeys;
+  | TInstanceGiteaAuthenticationConfigurationKeys
+  | TInstanceKeycloakAuthenticationConfigurationKeys;
 
 export type TInstanceAuthenticationKeys = TInstanceAuthenticationMethodKeys | TInstanceAuthenticationConfigurationKeys;
 
@@ -65,6 +80,7 @@ export type TGetBaseAuthenticationModeProps = {
   disabled: boolean;
   updateConfig: (key: TInstanceAuthenticationMethodKeys, value: string) => void;
   resolvedTheme: string | undefined;
+  formattedConfig?: IFormattedInstanceConfiguration;
 };
 
 export type TOAuthOption = {
@@ -80,4 +96,13 @@ export type TOAuthConfigs = {
   oAuthOptions: TOAuthOption[];
 };
 
-export type TCoreLoginMediums = "email" | "magic-code" | "github" | "gitlab" | "google" | "gitea";
+export type TCoreLoginMediums = "email" | "magic-code" | "github" | "gitlab" | "google" | "gitea" | "keycloak";
+
+export interface IKeycloakConfiguration {
+  clientId?: string;
+  clientSecret?: string;
+  baseUrl?: string;
+  realm?: string;
+  issuer?: string;
+  enableSync?: boolean;
+}

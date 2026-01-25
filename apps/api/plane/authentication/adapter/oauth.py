@@ -50,6 +50,8 @@ class OauthAdapter(Adapter):
             return "GITLAB_OAUTH_PROVIDER_ERROR"
         elif self.provider == "gitea":
             return "GITEA_OAUTH_PROVIDER_ERROR"
+        elif self.provider == "keycloak":
+            return "KEYCLOAK_OAUTH_PROVIDER_ERROR"
         else:
             return "OAUTH_NOT_CONFIGURED"
 
@@ -70,20 +72,46 @@ class OauthAdapter(Adapter):
     def get_user_token(self, data, headers=None):
         try:
             headers = headers or {}
-            response = requests.post(self.get_token_url(), data=data, headers=headers)
+            token_url = self.get_token_url()
+            print(f"[KEYCLOAK DEBUG] Posting to token URL: {token_url}")
+            print(f"[KEYCLOAK DEBUG] Data keys: {list(data.keys())}")
+            response = requests.post(token_url, data=data, headers=headers, timeout=10)
+            print(f"[KEYCLOAK DEBUG] Token response status: {response.status_code}")
             response.raise_for_status()
             return response.json()
-        except requests.RequestException:
+        except requests.RequestException as e:
+            # Log the actual error response for debugging
+            error_detail = ""
+            try:
+                if hasattr(e, 'response') and e.response is not None:
+                    error_detail = f"Status: {e.response.status_code}, Response: {e.response.text}"
+                    print(f"[KEYCLOAK ERROR] Token exchange failed: {error_detail}")
+                else:
+                    error_detail = f"Request failed: {str(e)}"
+                    print(f"[KEYCLOAK ERROR] {error_detail}")
+            except Exception:
+                pass
             code = self.authentication_error_code()
             raise AuthenticationException(error_code=AUTHENTICATION_ERROR_CODES[code], error_message=str(code))
 
     def get_user_response(self):
         try:
             headers = {"Authorization": f"Bearer {self.token_data.get('access_token')}"}
-            response = requests.get(self.get_user_info_url(), headers=headers)
+            response = requests.get(self.get_user_info_url(), headers=headers, timeout=10)
             response.raise_for_status()
             return response.json()
-        except requests.RequestException:
+        except requests.RequestException as e:
+            # Log the actual error response for debugging
+            error_detail = ""
+            try:
+                if hasattr(e, 'response') and e.response is not None:
+                    error_detail = f"Status: {e.response.status_code}, Response: {e.response.text}"
+                    print(f"[KEYCLOAK ERROR] Userinfo fetch failed: {error_detail}")
+                else:
+                    error_detail = f"Request failed: {str(e)}"
+                    print(f"[KEYCLOAK ERROR] {error_detail}")
+            except Exception:
+                pass
             code = self.authentication_error_code()
             raise AuthenticationException(error_code=AUTHENTICATION_ERROR_CODES[code], error_message=str(code))
 

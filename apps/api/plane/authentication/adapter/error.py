@@ -66,6 +66,8 @@ AUTHENTICATION_ERROR_CODES = {
     "RATE_LIMIT_EXCEEDED": 5900,
     # Unknown
     "AUTHENTICATION_FAILED": 5999,
+    "KEYCLOAK_NOT_CONFIGURED": 5124,
+    "KEYCLOAK_OAUTH_PROVIDER_ERROR": 5126,
 }
 
 
@@ -73,13 +75,14 @@ class AuthenticationException(Exception):
     error_code = None
     error_message = None
     payload = {}
-
+  
     def __init__(self, error_code, error_message, payload={}):
         self.error_code = error_code
         self.error_message = error_message
         self.payload = payload
 
     def get_error_dict(self):
+      
         error = {"error_code": self.error_code, "error_message": self.error_message}
         for key in self.payload:
             error[key] = self.payload[key]

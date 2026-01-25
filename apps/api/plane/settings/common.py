@@ -287,7 +287,18 @@ CELERY_IMPORTS = (
 )
 
 FILE_SIZE_LIMIT = int(os.environ.get("FILE_SIZE_LIMIT", 5242880))
+# plane/settings/base.py or plane/settings/production.py
 
+# Add to your existing settings
+
+# Keycloak OIDC Configuration
+IS_KEYCLOAK_ENABLED = os.environ.get("IS_KEYCLOAK_ENABLED", "0")
+KEYCLOAK_CLIENT_ID = os.environ.get("KEYCLOAK_CLIENT_ID", "")
+KEYCLOAK_CLIENT_SECRET = os.environ.get("KEYCLOAK_CLIENT_SECRET", "")
+KEYCLOAK_BASE_URL = os.environ.get("KEYCLOAK_BASE_URL", "")
+KEYCLOAK_REALM = os.environ.get("KEYCLOAK_REALM", "master")
+KEYCLOAK_ISSUER = os.environ.get("KEYCLOAK_ISSUER", "")
+ENABLE_KEYCLOAK_SYNC = os.environ.get("ENABLE_KEYCLOAK_SYNC", "0")
 # Unsplash Access key
 UNSPLASH_ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY")
 # Github Access Token

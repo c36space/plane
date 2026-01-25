@@ -40,10 +40,36 @@ from .views import (
     GiteaOauthInitiateEndpoint,
     GiteaCallbackSpaceEndpoint,
     GiteaOauthInitiateSpaceEndpoint,
+    KeycloakOauthInitiateEndpoint,
+    KeycloakCallbackEndpoint,
+    KeycloakOauthInitiateSpaceEndpoint,
+    KeycloakCallbackSpaceEndpoint,
 )
 
 urlpatterns = [
     # credentials
+     path(
+        "keycloak/",
+        KeycloakOauthInitiateEndpoint.as_view(),
+        name="keycloak-oauth-initiate",
+    ),
+    path(
+        "keycloak/callback/",
+        KeycloakCallbackEndpoint.as_view(),
+        name="keycloak-callback",
+    ),
+    
+    # Keycloak OAuth URLs for space
+    path(
+        "keycloak/space/",
+        KeycloakOauthInitiateSpaceEndpoint.as_view(),
+        name="keycloak-space-oauth-initiate",
+    ),
+    path(
+        "keycloak/callback/space/",
+        KeycloakCallbackSpaceEndpoint.as_view(),
+        name="keycloak-space-callback",
+    ),
     path("sign-in/", SignInAuthEndpoint.as_view(), name="sign-in"),
     path("sign-up/", SignUpAuthEndpoint.as_view(), name="sign-up"),
     path("spaces/sign-in/", SignInAuthSpaceEndpoint.as_view(), name="space-sign-in"),

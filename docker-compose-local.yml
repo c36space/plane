@@ -63,70 +63,70 @@ services:
     ports:
       - "5433:5432"
 
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/web/Dockerfile.dev
-  #   ports:
-  #     - "3000:3000" 
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./apps/web:/app/web
-  #   env_file:
-  #     - ./apps/web/.env
-  #   depends_on:
-  #     - api
-  #     - worker
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile.dev
+    ports:
+      - "3000:3000" 
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/web:/app/web
+    env_file:
+      - ./apps/web/.env
+    depends_on:
+      - api
+      - worker
     
-  # space:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/space/Dockerfile.dev
-  #   ports:
-  #   - "3002:3002" 
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./apps/space:/app/space
-  #   depends_on:
-  #     - api
-  #     - worker
-  #     - web
+  space:
+    build:
+      context: .
+      dockerfile: ./apps/space/Dockerfile.dev
+    ports:
+    - "3002:3002" 
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/space:/app/space
+    depends_on:
+      - api
+      - worker
+      - web
 
-  # admin:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/admin/Dockerfile.dev
-  #   ports:
-  #     - "3001:3001"
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./apps/admin:/app/admin
-  #   depends_on:
-  #     - api
-  #     - worker
-  #     - web
+  admin:
+    build:
+      context: .
+      dockerfile: ./apps/admin/Dockerfile.dev
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/admin:/app/admin
+    depends_on:
+      - api
+      - worker
+      - web
 
-  # live:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/live/Dockerfile.dev
-  #   ports:
-  #     - "3003:3003"
-  #   restart: unless-stopped
-  #   networks:
-  #     - dev_env
-  #   volumes:
-  #     - ./apps/live:/app/live
-  #   depends_on:
-  #     - api
-  #     - worker
-  #     - web
+  live:
+    build:
+      context: .
+      dockerfile: ./apps/live/Dockerfile.dev
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+    networks:
+      - dev_env
+    volumes:
+      - ./apps/live:/app/live
+    depends_on:
+      - api
+      - worker
+      - web
 
   api:
     build:

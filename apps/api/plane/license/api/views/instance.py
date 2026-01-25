@@ -61,6 +61,9 @@ class InstanceEndpoint(BaseAPIView):
             LLM_API_KEY,
             IS_INTERCOM_ENABLED,
             INTERCOM_APP_ID,
+            IS_KEYCLOAK_ENABLED,
+            KEYCLOAK_BASE_URL,
+            KEYCLOAK_REALM,
         ) = get_configuration_value(
             [
                 {
@@ -129,6 +132,18 @@ class InstanceEndpoint(BaseAPIView):
                     "key": "INTERCOM_APP_ID",
                     "default": os.environ.get("INTERCOM_APP_ID", ""),
                 },
+                  {
+                    "key": "IS_KEYCLOAK_ENABLED",
+                    "default": os.environ.get("IS_KEYCLOAK_ENABLED", "0"),
+                },
+                {
+                    "key": "KEYCLOAK_BASE_URL",
+                    "default": os.environ.get("KEYCLOAK_BASE_URL", ""),
+                },
+                {
+                    "key": "KEYCLOAK_REALM",
+                    "default": os.environ.get("KEYCLOAK_REALM", "master"),
+                },
             ]
         )
 
@@ -142,6 +157,9 @@ class InstanceEndpoint(BaseAPIView):
         data["is_gitea_enabled"] = IS_GITEA_ENABLED == "1"
         data["is_magic_login_enabled"] = ENABLE_MAGIC_LINK_LOGIN == "1"
         data["is_email_password_enabled"] = ENABLE_EMAIL_PASSWORD == "1"
+        data["is_keycloak_enabled"] = IS_KEYCLOAK_ENABLED == "1"
+        data["keycloak_base_url"] = str(KEYCLOAK_BASE_URL)
+        data["keycloak_realm"] = str(KEYCLOAK_REALM)
 
         # Github app name
         data["github_app_name"] = str(GITHUB_APP_NAME)

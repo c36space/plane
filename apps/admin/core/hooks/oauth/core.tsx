@@ -18,6 +18,7 @@ import { GithubConfiguration } from "@/components/authentication/github-config";
 import { GitlabConfiguration } from "@/components/authentication/gitlab-config";
 import { GoogleConfiguration } from "@/components/authentication/google-config";
 import { PasswordLoginConfiguration } from "@/components/authentication/password-config-switch";
+import { KeycloakConfiguration } from "@/components/authentication/keycloak-config"; // ADD THIS
 
 // Authentication methods
 export const getCoreAuthenticationModesMap: (
@@ -76,5 +77,12 @@ export const getCoreAuthenticationModesMap: (
     description: "Allow members to log in or sign up to plane with their Gitea accounts.",
     icon: <img src={giteaLogo} height={20} width={20} alt="Gitea Logo" />,
     config: <GiteaConfiguration disabled={disabled} updateConfig={updateConfig} />,
+  },
+  keycloak: {
+    key: "keycloak",
+    name: "Keycloak SSO",
+    description: "Single Sign-On with your organization's Keycloak identity provider.",
+    icon: <img src={googleLogo} height={20} width={20} alt="Keycloak Logo" />,
+    config: <KeycloakConfiguration disabled={disabled} updateConfig={updateConfig} />,
   },
 });

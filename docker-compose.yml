@@ -88,7 +88,7 @@ services:
       dockerfile: Dockerfile.api
       args:
         DOCKER_BUILDKIT: 1
-    restart: no
+    restart: "no"
     command: ./bin/docker-entrypoint-migrator.sh
     env_file:
       - ./apps/api/.env

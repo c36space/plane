@@ -37,3 +37,13 @@ from .space.password_management import (
     ResetPasswordSpaceEndpoint,
 )
 from .app.password_management import ForgotPasswordEndpoint, ResetPasswordEndpoint
+
+from .app.keycloak import (
+    KeycloakOauthInitiateEndpoint,
+    KeycloakCallbackEndpoint,
+
+)
+from .space.keycloak import (
+    KeycloakOauthInitiateSpaceEndpoint,
+    KeycloakCallbackSpaceEndpoint,
+)

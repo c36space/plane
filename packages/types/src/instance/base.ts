@@ -7,7 +7,6 @@ import type {
   TInstanceWorkspaceConfigurationKeys,
   TCoreLoginMediums,
 } from "./";
-import type { TExtendedLoginMediums } from "./auth-ee";
 
 export interface IInstanceInfo {
   instance: IInstance;
@@ -36,6 +35,7 @@ export interface IInstance {
   created_by: string | undefined;
   updated_by: string | undefined;
   workspaces_exist: boolean;
+  is_keycloak_enabled: boolean;
 }
 
 export interface IInstanceConfig {
@@ -45,6 +45,7 @@ export interface IInstanceConfig {
   is_github_enabled: boolean;
   is_gitlab_enabled: boolean;
   is_gitea_enabled: boolean;
+  is_keycloak_enabled: boolean; // ADD THIS
   is_magic_login_enabled: boolean;
   is_email_password_enabled: boolean;
   github_app_name: string | undefined;
@@ -79,11 +80,22 @@ export interface IInstanceAdmin {
 
 export type TInstanceIntercomConfigurationKeys = "IS_INTERCOM_ENABLED" | "INTERCOM_APP_ID";
 
+// Define Keycloak configuration keys
+export type TInstanceKeycloakConfigurationKeys =
+  | "IS_KEYCLOAK_ENABLED"
+  | "KEYCLOAK_CLIENT_ID"
+  | "KEYCLOAK_CLIENT_SECRET"
+  | "KEYCLOAK_BASE_URL"
+  | "KEYCLOAK_REALM"
+  | "KEYCLOAK_ISSUER"
+  | "ENABLE_KEYCLOAK_SYNC";
+
 export type TInstanceConfigurationKeys =
   | TInstanceAIConfigurationKeys
   | TInstanceEmailConfigurationKeys
   | TInstanceImageConfigurationKeys
   | TInstanceAuthenticationKeys
+  | TInstanceKeycloakConfigurationKeys // ADD THIS
   | TInstanceIntercomConfigurationKeys
   | TInstanceWorkspaceConfigurationKeys;
 
@@ -91,14 +103,20 @@ export interface IInstanceConfiguration {
   id: string;
   created_at: string;
   updated_at: string;
-  key: TInstanceConfigurationKeys;
+  key: TInstanceConfigurationKeys; // Now accepts Keycloak keys
   value: string;
   created_by: string | null;
   updated_by: string | null;
 }
 
-export type IFormattedInstanceConfiguration = {
+// Use Partial to make all properties optional (most practical)
+export type IFormattedInstanceConfiguration = Partial<{
   [key in TInstanceConfigurationKeys]: string;
-};
+}>;
 
-export type TLoginMediums = TCoreLoginMediums | TExtendedLoginMediums;
+// Or if you want all properties required (not recommended as config might be incomplete)
+// export type IFormattedInstanceConfiguration = {
+//   [key in TInstanceConfigurationKeys]: string;
+// };
+
+export type TLoginMediums = TCoreLoginMediums;

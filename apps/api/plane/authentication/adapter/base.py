@@ -116,6 +116,7 @@ class Adapter:
             "github": "ENABLE_GITHUB_SYNC",
             "gitlab": "ENABLE_GITLAB_SYNC",
             "gitea": "ENABLE_GITEA_SYNC",
+            "keycloak": "ENABLE_KEYCLOAK_SYNC", 
         }
         config_key = provider_config_map.get(self.provider)
         if config_key:
@@ -282,8 +283,8 @@ class Adapter:
 
         # Check if the user is present
         user = User.objects.filter(email=email).first()
-        # Check if sign up case or login
-        is_signup = bool(user)
+        # Check if sign up case or login - FIXED: inverted logic
+        is_signup = not bool(user)
         # If user is not present, create a new user
         if not user:
             # New user

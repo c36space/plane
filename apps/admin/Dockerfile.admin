@@ -75,14 +75,23 @@ RUN pnpm turbo run build --filter=admin
 
 # =========================================================================== #
 
-FROM nginx:1.29-alpine AS production
+FROM alpine:latest AS production
 
-COPY apps/admin/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY --from=installer /app/apps/admin/build/client /usr/share/nginx/html/god-mode
+# Copy built admin application
+COPY --from=installer /app/apps/admin/build/client /dist/god-mode
+
+# Copy metadata files
+COPY --from=installer /app/apps/admin/package.json /dist/package.json
+
+# Set working directory
+WORKDIR /dist
+
+RUN apk add --no-cache curl
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:3000/ >/dev/null || exit 1
+  CMD curl -fsS http://localhost:3000/ >/dev/null || exit 1 || echo "Check external nginx"
 
-CMD ["nginx", "-g", "daemon off;"]
+# Files are served by external nginx - no internal server
+CMD ["sh", "-c", "echo 'Admin files ready at /dist/god-mode' && sleep infinity"]

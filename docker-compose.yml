@@ -7,6 +7,12 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
+    networks:
+      - infra-net
+    ports:
+      - "3000:3000"
+    volumes:
+      - web-dist:/dist:ro
     depends_on:
       - api
 
@@ -18,6 +24,12 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
+    networks:
+      - infra-net
+    ports:
+      - "3001:3001"
+    volumes:
+      - admin-dist:/dist:ro
     depends_on:
       - api
       - web
@@ -30,6 +42,10 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
+    networks:
+      - infra-net
+    ports:
+      - "3002:3002"
     depends_on:
       - api
       - web
@@ -42,12 +58,18 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
+    networks:
+      - infra-net
+    ports:
+      - "8000:8000"
     command: ./bin/docker-entrypoint-api.sh
     env_file:
       - ./apps/api/.env
-    depends_on:
-      - plane-db
-      - plane-redis
+    environment:
+      # Override these with your external database and Redis URLs
+      # DATABASE_URL: postgresql://user:password@external-db-host:5432/plane
+      # REDIS_URL: redis://external-redis-host:6379/
+      DOCKERIZED: 1
 
   worker:
     container_name: bgworker
@@ -57,13 +79,13 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
+    networks:
+      - infra-net
     command: ./bin/docker-entrypoint-worker.sh
     env_file:
       - ./apps/api/.env
     depends_on:
       - api
-      - plane-db
-      - plane-redis
 
   beat-worker:
     container_name: beatworker
@@ -73,13 +95,13 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
+    networks:
+      - infra-net
     command: ./bin/docker-entrypoint-beat.sh
     env_file:
       - ./apps/api/.env
     depends_on:
       - api
-      - plane-db
-      - plane-redis
 
   migrator:
     container_name: plane-migrator
@@ -89,12 +111,11 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: "no"
+    networks:
+      - infra-net
     command: ./bin/docker-entrypoint-migrator.sh
     env_file:
       - ./apps/api/.env
-    depends_on:
-      - plane-db
-      - plane-redis
 
   live:
     container_name: plane-live
@@ -104,33 +125,15 @@ services:
       args:
         DOCKER_BUILDKIT: 1
     restart: always
-
-  plane-db:
-    container_name: plane-db
-    image: postgres:15.7-alpine
-    restart: always
-    command: postgres -c 'max_connections=1000'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      PGDATA: /var/lib/postgresql/data
-
-  plane-redis:
-    container_name: plane-redis
-    image: valkey/valkey:7.2.11-alpine
-    restart: always
-    volumes:
-      - redisdata:/data
+    networks:
+      - infra-net
 
   plane-mq:
     container_name: plane-mq
     image: rabbitmq:3.13.6-management-alpine
     restart: always
+    networks:
+      - infra-net
     env_file:
       - .env
     environment:
@@ -144,6 +147,8 @@ services:
     container_name: plane-minio
     image: minio/minio
     restart: always
+    networks:
+      - infra-net
     command: server /export --console-address ":9090"
     volumes:
       - uploads:/export
@@ -171,7 +176,12 @@ services:
   #     - admin
 
 volumes:
-  pgdata:
-  redisdata:
   uploads:
   rabbitmq_data:
+  web-dist:
+  admin-dist:
+
+networks:
+  infra-net:
+    external: true
+    driver: bridge

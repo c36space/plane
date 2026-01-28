@@ -127,6 +127,8 @@ services:
     restart: always
     networks:
       - infra-net
+    env_file:
+      - ./apps/live/.env
 
   plane-mq:
     container_name: plane-mq

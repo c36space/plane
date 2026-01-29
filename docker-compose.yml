@@ -161,7 +161,7 @@ services:
       - infra-net
     ports:
       - "2001:80"
-      - "443:443"
+      - "2003:443"
     environment:
       FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
       BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}

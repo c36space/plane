@@ -1,12 +1,13 @@
-(plane_proxy) {
-	request_body {
-		max_size {$FILE_SIZE_LIMIT}
-	}
+ (plane_proxy) {
+ 	request_body {
+ 		max_size {$FILE_SIZE_LIMIT}
+ 	}
 
+    redir /spaces /spaces/ permanent
     handle /spaces/* {
         reverse_proxy localhost:3002
     }
-	
+
     handle /live/* {
         reverse_proxy localhost:3005
     }
@@ -28,19 +29,31 @@
         try_files {path} {path}/ /index.html
         file_server
     }
+
+    # Static assets and internal minio (AIO) — internal-only endpoints
+    handle /static/* {
+        reverse_proxy localhost:3004
+    }
+
+    handle /{$BUCKET_NAME}/* {
+        reverse_proxy localhost:9000
+    }
+    handle /{$BUCKET_NAME} {
+        reverse_proxy localhost:9000
+    }
 }
 
 {
-	{$CERT_EMAIL}
-	acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory} 
-	{$CERT_ACME_DNS}
-	servers {
-		max_header_size 25MB
-		client_ip_headers X-Forwarded-For X-Real-IP
-		trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
-	}
+    {$CERT_EMAIL}
+    acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory} 
+    {$CERT_ACME_DNS}
+    servers {
+        max_header_size 25MB
+        client_ip_headers X-Forwarded-For X-Real-IP
+        trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
+    }
 }
 
-{$SITE_ADDRESS} {
-	import plane_proxy
+127.0.0.1:2015 {
+    import plane_proxy
 }

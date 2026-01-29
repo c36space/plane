@@ -1,14 +1,3 @@
-{
-	{$CERT_EMAIL}
-	acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
-	{$CERT_ACME_DNS}
-	servers {
-		max_header_size 25MB
-		client_ip_headers X-Forwarded-For X-Real-IP
-		trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
-	}
-}
-
 (plane_proxy) {
 	request_body {
 		max_size {$FILE_SIZE_LIMIT}
@@ -24,7 +13,7 @@
 	redir /god-mode /god-mode/ permanent
 	handle_path /god-mode/* {
 		root * /app/admin
-		try_files {path} /index.html
+		try_files {path} {path}/ /index.html
 		file_server
 	}
 
@@ -41,7 +30,7 @@
 		reverse_proxy api:8000
 	}
 
-	# Static backend assets
+	# Backend static
 	handle /static/* {
 		reverse_proxy api:8000
 	}
@@ -54,14 +43,19 @@
 		reverse_proxy plane-minio:9000
 	}
 
-	# Web SPA (MUST be last)
+	# ✅ Vite assets (NO SPA FALLBACK HERE)
+	handle /assets/* {
+		root * /app/web
+		file_server
+	}
+
+	# ✅ Everything else = SPA
 	handle {
 		root * /app/web
-		try_files {path} /index.html
+		try_files {path} {path}/ /index.html
 		file_server
 	}
 }
-
 {$SITE_ADDRESS} {
 	import plane_proxy
 }

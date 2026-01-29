@@ -160,7 +160,7 @@ services:
     networks:
       - infra-net
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
     environment:
       FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}

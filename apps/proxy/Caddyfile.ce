@@ -4,10 +4,16 @@
 	}
 
   redir /spaces /spaces/ permanent
-	reverse_proxy /spaces/* space:3000
+	handle /spaces/* {
+		reverse_proxy space:3000
+	}
 
   redir /god-mode /god-mode/ permanent
-	reverse_proxy /god-mode/* admin:3000
+	handle_path /god-mode* {
+		root * /app/admin
+		try_files {path} {path}/ /index.html
+		file_server
+	}
 	
 	reverse_proxy /live/* live:3000
 
@@ -20,7 +26,11 @@
 	reverse_proxy /{$BUCKET_NAME}/* plane-minio:9000
 	reverse_proxy /{$BUCKET_NAME} plane-minio:9000
 
-	reverse_proxy /* web:3000
+	handle_path /* {
+		root * /app/web
+		try_files {path} {path}/ /index.html
+		file_server
+	}
 }
 
 {

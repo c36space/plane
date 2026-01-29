@@ -11,6 +11,7 @@ services:
       - infra-net
     volumes:
       - web-dist:/dist:ro
+      - web-dist:/app/web:ro
     depends_on:
       - api
 
@@ -26,6 +27,7 @@ services:
       - infra-net
     volumes:
       - admin-dist:/dist:ro
+      - admin-dist:/app/admin:ro
     depends_on:
       - api
       - web

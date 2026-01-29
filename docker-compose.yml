@@ -10,8 +10,7 @@ services:
     networks:
       - infra-net
     volumes:
-      - web-dist:/dist:ro
-      - web-dist:/app/web:ro
+      - web-dist:/dist
     depends_on:
       - api
 
@@ -26,8 +25,7 @@ services:
     networks:
       - infra-net
     volumes:
-      - admin-dist:/dist:ro
-      - admin-dist:/app/admin:ro
+      - admin-dist:/dist
     depends_on:
       - api
       - web
@@ -164,6 +162,9 @@ services:
     ports:
       - "2001:80"
       - "2003:443"
+    volumes:
+      - web-dist:/app/web:ro
+      - admin-dist:/app/admin:ro
     environment:
       FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
       BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}

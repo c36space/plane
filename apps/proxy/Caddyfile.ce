@@ -1,63 +1,65 @@
 (plane_proxy) {
-	request_body {
-		max_size {$FILE_SIZE_LIMIT}
-	}
 
-	# Spaces
-	redir /spaces /spaces/ permanent
-	handle /spaces/* {
-		reverse_proxy space:3000
-	}
+    request_body {
+        max_size {$FILE_SIZE_LIMIT}
+    }
 
-	# Admin
-	redir /god-mode /god-mode/ permanent
-	handle /god-mode/* {
-    	root * /app/admin
-    	try_files {path} {path}/ /god-mode/index.html
-    	file_server
-	}
+    # --------------------
+    # ADMIN (MUST BE FIRST)
+    # --------------------
+    redir /god-mode /god-mode/ permanent
+    handle /god-mode/* {
+        root * /app/admin
+        try_files {path} {path}/ /god-mode/index.html
+        file_server
+    }
 
+    # Spaces
+    redir /spaces /spaces/ permanent
+    handle /spaces/* {
+        reverse_proxy space:3000
+    }
 
+    # Live
+    handle /live/* {
+        reverse_proxy live:3000
+    }
 
-	# Live
-	handle /live/* {
-		reverse_proxy live:3000
-	}
+    # API / Auth
+    handle /api/* {
+        reverse_proxy api:8000
+    }
+    handle /auth/* {
+        reverse_proxy api:8000
+    }
 
-	# API / Auth
-	handle /api/* {
-		reverse_proxy api:8000
-	}
-	handle /auth/* {
-		reverse_proxy api:8000
-	}
+    # Backend static
+    handle /static/* {
+        reverse_proxy api:8000
+    }
 
-	# Backend static
-	handle /static/* {
-		reverse_proxy api:8000
-	}
+    # MinIO
+    handle /{$BUCKET_NAME}/* {
+        reverse_proxy plane-minio:9000
+    }
+    handle /{$BUCKET_NAME} {
+        reverse_proxy plane-minio:9000
+    }
 
-	# MinIO bucket
-	handle /{$BUCKET_NAME}/* {
-		reverse_proxy plane-minio:9000
-	}
-	handle /{$BUCKET_NAME} {
-		reverse_proxy plane-minio:9000
-	}
+    # Web assets
+    handle /assets/* {
+        root * /app/web
+        file_server
+    }
 
-	# ✅ Vite assets (NO SPA FALLBACK HERE)
-	handle /assets/* {
-		root * /app/web
-		file_server
-	}
-
-	# ✅ Everything else = SPA
-	handle {
-		root * /app/web
-		try_files {path} {path}/ /index.html
-		file_server
-	}
+    # Web SPA (LAST — catch-all)
+    handle {
+        root * /app/web
+        try_files {path} {path}/ /index.html
+        file_server
+    }
 }
+
 {$SITE_ADDRESS} {
 	import plane_proxy
 }

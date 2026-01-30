@@ -60,6 +60,4 @@
     }
 }
 
-{$SITE_ADDRESS} {
-	import plane_proxy
-}
+

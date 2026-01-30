@@ -42,6 +42,10 @@ class KeycloakOAuthProvider(OauthAdapter):
                 "key": "KEYCLOAK_BASE_URL",
                 "default": os.environ.get("KEYCLOAK_BASE_URL", ""),
             },
+            {
+                "key": "KEYCLOAK_REDIRECT_PROTOCOL",
+                "default": os.environ.get("KEYCLOAK_REDIRECT_PROTOCOL", "https"),
+            },
         ])
 
         (
@@ -50,6 +54,7 @@ class KeycloakOAuthProvider(OauthAdapter):
             KEYCLOAK_ISSUER,
             KEYCLOAK_REALM,
             KEYCLOAK_BASE_URL,
+            KEYCLOAK_REDIRECT_PROTOCOL,
         ) = config_values
 
         if not all([KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET]):
@@ -88,9 +93,8 @@ class KeycloakOAuthProvider(OauthAdapter):
         scope = "openid profile email"
 
         # Build redirect URI based on request context
-        # Use X-Forwarded-Proto header for secure detection behind reverse proxy
-        is_secure = self._get_request_is_secure(request)
-        protocol = 'https' if is_secure else 'http'
+        # Use environment variable for protocol (defaults to HTTPS for production)
+        protocol = KEYCLOAK_REDIRECT_PROTOCOL
         
         if hasattr(request, 'is_space') and request.is_space:
             redirect_uri = f"{protocol}://{request.get_host()}/auth/keycloak/callback/space/"

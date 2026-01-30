@@ -12,10 +12,11 @@
 	# Admin
 	redir /god-mode /god-mode/ permanent
 	handle_path /god-mode/* {
-		root * /app/admin
-		try_files {path} {path}/ /index.html
-		file_server
+    	root * /app/admin/god-mode
+    	try_files {path} {path}/ /index.html
+    	file_server
 	}
+
 
 	# Live
 	handle /live/* {
